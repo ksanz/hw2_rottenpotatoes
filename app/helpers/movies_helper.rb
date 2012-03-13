@@ -6,6 +6,6 @@ module MoviesHelper
 
   # Mira si es la columna seleccionada
   def is_selected?(col)
-      (@colum == col) ? "hilite" : nil
+      (@sort == col) ? "hilite" : nil
   end
 end
