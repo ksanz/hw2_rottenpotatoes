@@ -7,8 +7,27 @@ class MoviesController < ApplicationController
   end
 
   def index    
-    @colum = params[:sort]
-    @movies = Movie.order(params[:sort])
+    @sort = params[:sort]
+    @ratings = params[:ratings]
+    if @ratings.nil?
+	ratings = Movie.ratings
+    else
+	ratings = @ratings.keys
+    end
+    @all_ratings = Movie.ratings.inject(Hash.new) do |all_ratings, rating|
+	all_ratings[rating] = @ratings.nil? ? false : @ratings.has_key?(rating)
+	all_ratings
+    end
+    if !@sort.nil?
+      begin
+        @movies = Movie.order("#{@sort} ASC").find_all_by_rating(ratings)
+      rescue ActiveRecord::StatementInvalid
+        flash[:warning] = "Movies cannot be sorted by #{@sort}."
+        @movies = Movie.find_all_by_rating(ratings)
+      end
+    else
+      @movies = Movie.find_all_by_rating(ratings)
+    end
   end
 
   def new
